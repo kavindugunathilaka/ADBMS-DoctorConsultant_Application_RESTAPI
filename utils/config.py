@@ -1,6 +1,7 @@
 import cx_Oracle
 
-from models.doctor import Doctor 
+# from utils.db_helper import CursorByName
+from models.doctor import Doctor
 
 host_name = 'localhost'
 port_number = 1521
@@ -15,16 +16,24 @@ try:
     constring = host_name+':'+str(port_number)+'/'+service_name
     connection = cx_Oracle.connect(user, pcode, constring, encoding='UTF-8')
 
+    
     # data = {}
-    # with connection.cursor() as cur:
-    #     for row in cur.execute('select * from user_account_details'):
-    #         retrived_data = list(row)
+    with connection.cursor() as cur:
+        cur.execute('select * from user_account_details')
+        for col, description in enumerate(cur):
+            print({description[0]: col})
+
+
+        # return { description[0]: row[col] for col, description in enumerate(self._cursor.description) }    
+        # for row in CursorByName(cur):
+        #     print(row)
+
     #     num = 0
     #     for col in cur.description:
     #         data[col[0]] = retrived_data[num]
     #         num += 1
     # print(data)
-    # connection.close()
+    connection.close()
 
     # data = []
     # with connection.cursor() as cur:

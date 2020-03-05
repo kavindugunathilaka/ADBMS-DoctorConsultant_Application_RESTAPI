@@ -1,40 +1,60 @@
-from flask import Flask 
+from flask import request 
 from flask_restful import Resource
 from http import HTTPStatus
 
-# import utils.config
+from utils.dbconn import connection
 
 from models.doctor import Doctor 
 
-import cx_Oracle
 
 
 
 class DoctorListResource( Resource ):
 
     def get(self):
-        host_name = 'localhost'
-        port_number = 1521
-        service_name = 'doc_consult_db'
-
-        user = 'admin_user'
-        pcode = 'Admin$12345'
-
-        connection = None
-        try:
-    
-            constring = host_name+':'+str(port_number)+'/'+service_name
-            connection = cx_Oracle.connect(user, pcode, constring, encoding='UTF-8')
-
-        except Exception as ex:
-            return {'message' : ex}, HTTPStatus.NOT_FOUND
-        # connection = config.connection
-        data = []
+        
+        if connection is None: return {'message':'No Connection'}, HTTPStatus.SERVICE_UNAVAILABLE
+        
+        data =[]
+        
         with connection.cursor() as cur:
-            for row in cur.execute('select * from doctor'):
-                retrived_data = list(row)
-                doctor = Doctor(*retrived_data)
+            cur.execute('select * from doctor')
+            records = cur.fetchall()
+
+            if len(records) == 0:   return {'message':"Not Found"}, HTTPStatus.NOT_FOUND
+            
+            for row in records:
+                doctor = Doctor(*list(row))
                 data.append(doctor.data)
 
         connection.close()
-        return {'data': data }
+        
+        return {'data': data }, HTTPStatus.OK
+
+    def post(self):
+
+        data = request.get_json()
+
+        doctor = Doctor(
+            data['first_name'],
+            data['last_name'],
+            data['mobile_number'],
+            data['email_address'],
+            data['specialization'],
+            data['qualification'],
+            data['resid_address'],
+            data['username']
+            )
+        sql_query = """INSERT INTO doctor values 
+        (:doctor_id, :first_name, :last_name, :mobile_number, :email_address, :specialization, :qualification, :resid_address, :username)"""
+
+        del data['doctor_id']
+        print(data)
+
+        with connection.cursor() as cur:
+            cur.execute("""INSERT INTO doctor (first_name, last_name, mobile_number, email_address, specialization, qualification, resid_address, username) 
+            VALUES 
+            ( :first_name, :last_name, :mobile_number, :email_address, :specialization, :qualification, :resid_address, :username)""", data)
+            connection.commit()
+
+        

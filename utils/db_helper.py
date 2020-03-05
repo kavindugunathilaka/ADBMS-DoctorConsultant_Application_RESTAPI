@@ -1,3 +1,5 @@
+
+
 class CursorByName():
     def __init__(self, cursor):
         self._cursor = cursor
