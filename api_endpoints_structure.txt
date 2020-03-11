@@ -1,0 +1,70 @@
+Doctor :
+    /doctors
+        get
+        post
+    /doctors/<int:doctor_id>
+        get
+        post
+        delete
+    /doctors/<string:specialization>
+        get
+
+Patient :
+    /patients
+        get
+        post
+    /patients/<int:patient_id>
+        get
+        put
+        delete
+    /patients/<int:>
+
+Pharmacists :
+    /pharmacists 
+        get
+        post
+    /pharmacists/<int:pharmacist_id>
+        get
+        put
+        delete
+
+Receptionist :
+    /receptionists
+        get
+        post
+    /receptionists/<int:receptionist_id>
+        get
+        post
+        delete
+
+Appointments :
+    /appointments
+        get
+        post
+    /appointments/<int:appointment_id>
+        get
+        put 
+        delete
+    /appointments/<int:doctor_id>
+        get
+        put
+        delete
+    /appointments/<int:patient_id>
+        get
+        put
+        delete
+    /appointments/<int:appointment_id>/<int:receptionist_id>
+        get
+        put
+    /appointments/<string:status>
+        get
+        put 
+        delete
+
+UserAccountDetails:
+    /userReg
+        post --> request contains username, digest password
+    /userVerification
+        post 
+            --> request contains username, digest password
+            --> response contains username, account_created_date, account_last_login

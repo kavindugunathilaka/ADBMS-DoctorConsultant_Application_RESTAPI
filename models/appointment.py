@@ -1,7 +1,7 @@
 
 class Appointment:
 
-    def __init__(self, appointment_id, appointment_date, appointment_time, status, patient_id, doctor_id, receptionist_id ):
+    def __init__(self, appointment_id, appointment_date, appointment_time, status, patient_id, doctor_id, receptionist_id=None ):
         self.appointment_id = appointment_id,
         self.appointment_date = appointment_date,
         self.appointment_time = appointment_time,

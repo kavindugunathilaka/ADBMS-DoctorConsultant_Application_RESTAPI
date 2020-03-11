@@ -33,28 +33,127 @@ class DoctorListResource( Resource ):
 
     def post(self):
 
+        if connection is None:  return {'message':'No Connection'}, HTTPStatus.SERVICE_UNAVAILABLE
+
         data = request.get_json()
+        # doctor = Doctor(
+        #     data['first_name'],
+        #     data['last_name'],
+        #     data['mobile_number'],
+        #     data['email_address'],
+        #     data['specialization'],
+        #     data['qualification'],
+        #     data['resid_address'],
+        #     data['username']
+        #     )
 
-        doctor = Doctor(
-            data['first_name'],
-            data['last_name'],
-            data['mobile_number'],
-            data['email_address'],
-            data['specialization'],
-            data['qualification'],
-            data['resid_address'],
-            data['username']
-            )
-        sql_query = """INSERT INTO doctor values 
-        (:doctor_id, :first_name, :last_name, :mobile_number, :email_address, :specialization, :qualification, :resid_address, :username)"""
-
-        del data['doctor_id']
-        print(data)
+        sql_query = """
+            BEGIN
+                INSERT INTO doctor (first_name, last_name, mobile_number, email_address, specialization, qualification, resid_address, username) 
+                VALUES 
+                ( :first_name, :last_name, :mobile_number, :email_address, :specialization, :qualification, :resid_address, :username)
+                RETURNING doctor_id INTO :doctor_id;
+                COMMIT;
+            END;
+            """
 
         with connection.cursor() as cur:
-            cur.execute("""INSERT INTO doctor (first_name, last_name, mobile_number, email_address, specialization, qualification, resid_address, username) 
-            VALUES 
-            ( :first_name, :last_name, :mobile_number, :email_address, :specialization, :qualification, :resid_address, :username)""", data)
-            connection.commit()
+            data['doctor_id'] = cur.var(cx_Oracle.NUMBER)
+            cur.execute(sql_query, data )
+            data['doctor_id'] = int(data['doctor_id'].getvalue())
+        
+        connection.close()
+
+        return {'data': data }, HTTPStatus.OK
+
+
+class DoctorResource( Resource ):
+
+    def get(self, doctor_id):
+        
+        doctor = None
+        if connection is None: return {'message':'No Connection'}, HTTPStatus.SERVICE_UNAVAILABLE
+        
+        data =[]
+        
+        with connection.cursor() as cur:
+            cur.execute('select * from doctor where doctor_id = :id',{'id':doctor_id})
+            record = cur.fetchone()
+
+            if record is None:
+                connection.close()
+                return {'message':"Not Found"}, HTTPStatus.NOT_FOUND
+            else:
+                doctor = Doctor(*record)
+                    
+        connection.close()
+        return {'data': doctor.data }, HTTPStatus.OK
+        
+    # def put(self, doctor_id):
+
+        # data = request.get_json()
+        
+        # doctor = Doctor(
+        #     data['first_name'],
+        #     data['last_name'],
+        #     data['mobile_number'],
+        #     data['email_address'],
+        #     data['specialization'],
+        #     data['qualification'],
+        #     data['resid_address'],
+        #     data['username']
+        #     )
+        # update_list = [k for k,v in doctor.data if v == '']
 
         
+
+        # update_query = """
+        #     BEGIN
+        #         UPDATE doctor SET
+
+
+        #         INSERT INTO doctor (first_name, last_name, mobile_number, email_address, specialization, qualification, resid_address, username) 
+        #         VALUES 
+        #         ( :first_name, :last_name, :mobile_number, :email_address, :specialization, :qualification, :resid_address, :username)
+        #         RETURNING doctor_id INTO :doctor_id;
+        #         COMMIT;
+        #     END;
+        #     """
+
+
+
+    def delete(self, doctor_id):
+
+        if connection is None: return {'message':'No Connection'}, HTTPStatus.SERVICE_UNAVAILABLE
+        
+        with connection.cursor() as cur:
+            if cur.execute('DELETE FROM doctor WHERE doctor_id = :id',{'id':doctor_id}):
+                return {}, HTTPStatus.NO_CONTENT
+
+            else:
+                return {'message': 'Operation error' }, HTTPStatus.BAD_REQUEST
+                    
+        connection.close()
+
+
+class DoctorSpecializationResource( Resource ):
+
+    def get(self, specialization):
+        
+        data = []
+        if connection is None: return {'message':'No Connection'}, HTTPStatus.SERVICE_UNAVAILABLE
+        
+        data =[]
+        
+        with connection.cursor() as cur:
+            cur.execute('select * from doctor where specialization = :specialization',{'specialization': specialization})
+            records = cur.fetchall()
+
+            if len(records) == 0:   return {'message':"Not Found"}, HTTPStatus.NOT_FOUND
+            
+            for row in records:
+                doctor = Doctor(*list(row))
+                data.append(doctor.data)
+                    
+        connection.close()
+        return {'data': data }, HTTPStatus.OK
