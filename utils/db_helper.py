@@ -1,16 +1,21 @@
+import cx_Oracle
 
+def get_dictformat(cur):
+    data = {}
+    num_of_record = 0
+    for implicitCursor in cur.getimplicitresults():
+        for row in implicitCursor:
+            data[num_of_record] = list(row)
+            num_of_record += 1
+    if len(data.keys()) == 0:
+        data = None
+    return data
 
-class CursorByName():
-    def __init__(self, cursor):
-        self._cursor = cursor
-    
-    def __iter__(self):
-        return self
-
-    def __next__(self):
-        row = self._cursor.__next__()
-
-        return { description[0]: row[col] for col, description in enumerate(self._cursor.description) }
-    
-for row in CursorByName(cur):
-    print(row)
+def get_listformat(cur):
+    data = []
+    for implicitCursor in cur.getimplicitresults():
+        for row in implicitCursor:
+            data.append(list(row))
+    if len(data) == 0:
+        data = None
+    return data

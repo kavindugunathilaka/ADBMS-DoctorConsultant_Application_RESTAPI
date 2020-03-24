@@ -3,6 +3,7 @@ from flask_restful import Resource
 from http import HTTPStatus
 
 from utils.dbconn import connection
+from utils.db_helper import get_dictformat, get_listformat
 
 from models.doctor import Doctor 
 
@@ -21,7 +22,9 @@ class DoctorListResource( Resource ):
             cur.execute('select * from doctor')
             records = cur.fetchall()
 
-            if len(records) == 0:   return {'message':"Not Found"}, HTTPStatus.NOT_FOUND
+            if len(records) == 0:   
+                connection.close()
+                return {'message':"Not Found"}, HTTPStatus.NOT_FOUND
             
             for row in records:
                 doctor = Doctor(*list(row))
@@ -77,13 +80,16 @@ class DoctorResource( Resource ):
         data =[]
         
         with connection.cursor() as cur:
-            cur.execute('select * from doctor where doctor_id = :id',{'id':doctor_id})
-            record = cur.fetchone()
+            # cur.execute('select * from doctor where doctor_id = :id',{'id':doctor_id})
+            cur.callproc("doctor_pkg.read_doctor_id", [doctor_id,])
+
+            record = get_listformat(cur)
 
             if record is None:
                 connection.close()
                 return {'message':"Not Found"}, HTTPStatus.NOT_FOUND
             else:
+                [record] = record
                 doctor = Doctor(*record)
                     
         connection.close()
@@ -146,10 +152,10 @@ class DoctorSpecializationResource( Resource ):
         data =[]
         
         with connection.cursor() as cur:
-            cur.execute('select * from doctor where specialization = :specialization',{'specialization': specialization})
-            records = cur.fetchall()
+            cur.callproc("doctor_pkg.read_doctor_specialization", [specialization,])
+            records = get_listformat(cur)
 
-            if len(records) == 0:   return {'message':"Not Found"}, HTTPStatus.NOT_FOUND
+            if records is None:   return {'message':"Not Found"}, HTTPStatus.NOT_FOUND
             
             for row in records:
                 doctor = Doctor(*list(row))

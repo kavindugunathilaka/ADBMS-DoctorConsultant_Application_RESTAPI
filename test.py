@@ -1,8 +1,8 @@
 import cx_Oracle
 from flask import jsonify 
-
 from models.doctor import Doctor
 from utils.dbconn import connection
+from utils.db_helper import get_dictformat, get_listformat
 
 
 # host_name = 'localhost'
@@ -113,7 +113,31 @@ def insert_data(doctor_id):
     except Exception as ex:
         print("Message : {0}".format(ex))
 
+def function_test(doctor_id):
+    doctor = None
+    with connection.cursor() as cur:
+        # cur.callproc("get_doctor_procd", [doctor_id,] )
+        cur.callproc("doctor_pkg.read_doctor_id", [doctor_id,])
+
+        d = get_listformat(cur)
+        if d:
+            [d] = d
+            print(*d)
+
+    
+
+        # if len(records) == 0:   print("No DATA FOUND")
+        # else:   print(list(*records))        
+        # for row in records:
+        #     print(row[0])
+        #     doctor = Doctor(*list(row))
+
+    connection.close()
+
+
 if __name__ == "__main__":
     
-    insert_data(2)
+    function_test(2)
+    # insert_data(2)
     # procedure_test()
+    
