@@ -1,5 +1,6 @@
 from flask import Flask 
 from flask_restful import Api
+from utils.dbconn import connection
 
 from resources.doctor import DoctorListResource, DoctorResource, DoctorSpecializationResource
 from resources.patient import PatientListResource, PatientResource, PatientMobileNumberResource
@@ -14,6 +15,8 @@ from resources.patient_medical_records import PatientMedicalRecordsResource
 from resources.medical_records import MedicalRecordsResource
 from resources.symptons_records import SymptomsRecordsResource, SymptomsRecordsMedicalResource
 from resources.medicaiton_record import MedicationRecordsListResource, MedicationRecordResource
+
+from resources.predict import PredictResource
 
 app = Flask(__name__)
 api = Api(app)
@@ -59,6 +62,12 @@ api.add_resource(SymptomsRecordsMedicalResource, '/symptomsRecords/<int:medical_
 api.add_resource(MedicationRecordsListResource, '/medicationRecords')
 api.add_resource(MedicationRecordResource, '/medicationRecords/<int:med_record_id>')
 
+api.add_resource(PredictResource, '/predict')
 if __name__ == "__main__":
     # app.run(port=5000, debug=False, host='0.0.0.0')
-    app.run(port=5000, debug=True)
+    try:
+        app.run(port=5000, debug=True)
+    except e:
+        print(str(e))
+    finally:
+        connection.close()

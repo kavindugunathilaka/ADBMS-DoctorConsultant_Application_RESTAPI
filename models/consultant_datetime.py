@@ -7,7 +7,8 @@ class Consultant_datetime:
         self.consult_date = consult_date,
         self.consult_time = consult_time,
         self.status = status,
-        self.receptionist_id = receptionist_id
+        self.receptionist_id = receptionist_id,
+        self.doctor_id = doctor_id
         
 
     @property
@@ -17,5 +18,6 @@ class Consultant_datetime:
             'consult_date' : self.consult_date[0],
             'consult_time' : self.consult_time[0],
             'status' : self.status[0],
-            'receptionist_id' : self.receptionist_id[0]
+            'receptionist_id' : self.receptionist_id[0],
+            'doctor_id': self.doctor_id[0]
         }

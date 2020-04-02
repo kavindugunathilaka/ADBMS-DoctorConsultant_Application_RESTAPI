@@ -23,14 +23,13 @@ class DoctorListResource( Resource ):
             records = cur.fetchall()
 
             if len(records) == 0:   
-                connection.close()
+
                 return {'message':"Not Found"}, HTTPStatus.NOT_FOUND
             
             for row in records:
                 doctor = Doctor(*list(row))
                 data.append(doctor.data)
 
-        connection.close()
         
         return {'data': data }, HTTPStatus.OK
 
@@ -65,8 +64,6 @@ class DoctorListResource( Resource ):
             cur.execute(sql_query, data )
             data['doctor_id'] = int(data['doctor_id'].getvalue())
         
-        connection.close()
-
         return {'data': data }, HTTPStatus.OK
 
 
@@ -86,13 +83,11 @@ class DoctorResource( Resource ):
             record = get_listformat(cur)
 
             if record is None:
-                connection.close()
                 return {'message':"Not Found"}, HTTPStatus.NOT_FOUND
             else:
                 [record] = record
                 doctor = Doctor(*record)
-                    
-        connection.close()
+
         return {'data': doctor.data }, HTTPStatus.OK
         
     # def put(self, doctor_id):
@@ -139,8 +134,6 @@ class DoctorResource( Resource ):
             else:
                 return {'message': 'Operation error' }, HTTPStatus.BAD_REQUEST
                     
-        connection.close()
-
 
 class DoctorSpecializationResource( Resource ):
 
@@ -161,5 +154,4 @@ class DoctorSpecializationResource( Resource ):
                 doctor = Doctor(*list(row))
                 data.append(doctor.data)
                     
-        connection.close()
         return {'data': data }, HTTPStatus.OK

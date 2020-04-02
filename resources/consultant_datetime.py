@@ -36,19 +36,12 @@ class ConsultantDateTimeListResource( Resource ):
         if connection is None:  return {'message':'No Connection'}, HTTPStatus.SERVICE_UNAVAILABLE
 
         data = request.get_json()
-        # consultDateTime = Consultant_datetime(
-        #     data['consult_id'],
-        #     data['consult_date'],
-        #     data['consult_date'],
-        #     data['status'],
-        #     data['receptionist_id']
-        #     )
-
+        
         sql_query = """
             BEGIN
-                INSERT INTO consultant_datetime (consult_id, consult_date, consult_time, status, receptionist_id) 
+                INSERT INTO consultant_datetime (consult_id, consult_date, consult_time, status, receptionist_id, doctor_id) 
                 VALUES 
-                ( TO_DATE(:consult_date, 'yyyy/mm/dd'), TO_DATE(:consult_time,'hh:mm'), :status, :receptionist_id)
+                ( TO_DATE(:consult_date, 'yyyy/mm/dd'), TO_DATE(:consult_time,'hh:mm'), :status, :receptionist_id, :doctor_id)
                 RETURNING consult_id INTO :consult_id;
                 COMMIT;
             END;
@@ -127,3 +120,24 @@ class ConsultStatusResource( Resource ):
         return {'data': data }, HTTPStatus.OK
         
 
+# class ConsultDoctorResource( Resource ):
+
+#     def get(self, status):
+        
+        
+#         if connection is None: return {'message':'No Connection'}, HTTPStatus.SERVICE_UNAVAILABLE
+        
+#         data =[]
+        
+#         with connection.cursor() as cur:
+#             cur.execute('select * from consultant_datetime where status = :status',{'status':status})
+#             record = cur.fetchone()
+
+#             if record is None:
+#                 connection.close()
+#                 return {'message':"Not Found"}, HTTPStatus.NOT_FOUND
+#             else:
+#                 consultDateTime = Consultant_datetime(*record)
+                    
+#         connection.close()
+#         return {'data': data }, HTTPStatus.OK
