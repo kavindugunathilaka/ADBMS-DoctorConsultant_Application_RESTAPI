@@ -67,7 +67,7 @@ if __name__ == "__main__":
     # app.run(port=5000, debug=False, host='0.0.0.0')
     try:
         app.run(port=5000, debug=True)
-    except e:
+    except Exception as e:
         print(str(e))
     finally:
         connection.close()

@@ -7,6 +7,7 @@ from utils.db_helper import get_dictformat, get_listformat
 
 from models.doctor import Doctor 
 
+import cx_Oracle
 
 
 
@@ -38,6 +39,7 @@ class DoctorListResource( Resource ):
         if connection is None:  return {'message':'No Connection'}, HTTPStatus.SERVICE_UNAVAILABLE
 
         data = request.get_json()
+        if data is None:    return {'message' : 'No Data'}, HTTPStatus.BAD_REQUEST
         # doctor = Doctor(
         #     data['first_name'],
         #     data['last_name'],
